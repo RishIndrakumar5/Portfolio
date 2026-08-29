@@ -1,5 +1,5 @@
-// Published certificate data — replace this file after editing & downloading from the Certificates page.
+// Published certificate data — updated by Save on the Certificates page.
 window.CERTIFICATES_DATA = {
-  boardHeight: 700,
-  items: []
+  "boardHeight": 700,
+  "items": []
 };
