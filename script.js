@@ -1,3 +1,55 @@
+// Auto-update grade based on school year (advances each August)
+// Base: 8th grade starting fall 2026
+const GRADE_BASE = 8;
+const GRADE_BASE_YEAR = 2026; // school year starting August 2026
+
+function getSchoolYearStart(date = new Date()) {
+    const year = date.getFullYear();
+    const month = date.getMonth(); // 0 = Jan, 7 = Aug
+    return month >= 7 ? year : year - 1;
+}
+
+function getCurrentGrade(date = new Date()) {
+    const yearsPassed = getSchoolYearStart(date) - GRADE_BASE_YEAR;
+    return GRADE_BASE + yearsPassed;
+}
+
+function toOrdinal(n) {
+    const mod100 = n % 100;
+    if (mod100 >= 11 && mod100 <= 13) return `${n}th`;
+    switch (n % 10) {
+        case 1: return `${n}st`;
+        case 2: return `${n}nd`;
+        case 3: return `${n}rd`;
+        default: return `${n}th`;
+    }
+}
+
+function getGradeDisplay(date = new Date()) {
+    const grade = getCurrentGrade(date);
+    if (grade < 1) {
+        return { ordinal: 'K', labelCapital: 'Kindergarten', labelLower: 'kindergarten' };
+    }
+    if (grade > 12) {
+        return { ordinal: 'Graduate', labelCapital: 'Graduate', labelLower: 'graduate' };
+    }
+    const ordinal = toOrdinal(grade);
+    return {
+        ordinal,
+        labelCapital: `${ordinal} Grade`,
+        labelLower: `${ordinal} grade`
+    };
+}
+
+function updateGradeDisplays() {
+    const { labelCapital, labelLower } = getGradeDisplay();
+    document.querySelectorAll('[data-grade="label"]').forEach((el) => {
+        el.textContent = el.dataset.case === 'lower' ? labelLower : labelCapital;
+    });
+}
+
+updateGradeDisplays();
+
 // Smooth scrolling for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
