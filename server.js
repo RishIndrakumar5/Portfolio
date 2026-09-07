@@ -63,7 +63,17 @@ function git(args) {
     return execFileSync('git', args, {
         cwd: ROOT,
         encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'pipe']
+        stdio: ['ignore', 'pipe', 'pipe'],
+        env: {
+            ...process.env,
+            // Avoid requiring a local git user.name/email config
+            GIT_AUTHOR_NAME: process.env.GIT_AUTHOR_NAME || 'Rish',
+            GIT_AUTHOR_EMAIL:
+                process.env.GIT_AUTHOR_EMAIL || '237796974+RishIndrakumar5@users.noreply.github.com',
+            GIT_COMMITTER_NAME: process.env.GIT_COMMITTER_NAME || 'Rish',
+            GIT_COMMITTER_EMAIL:
+                process.env.GIT_COMMITTER_EMAIL || '237796974+RishIndrakumar5@users.noreply.github.com'
+        }
     });
 }
 

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
     <title>Certificates - Rishwanth Indrakumar</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -33,7 +34,7 @@
     <section class="section">
         <div class="container">
             <div class="cert-toolbar" id="cert-toolbar">
-                <button type="button" class="cert-btn" id="unlock-btn">Edit</button>
+                <button type="button" class="cert-btn" id="unlock-btn">Edit (passcode required)</button>
                 <div class="cert-edit-actions" id="edit-actions" hidden>
                     <button type="button" class="cert-btn cert-btn-primary" id="add-cert-btn">Add certificate</button>
                     <button type="button" class="cert-btn" id="save-btn">Save</button>
@@ -42,7 +43,7 @@
                 </div>
                 <p class="cert-save-status" id="save-status" aria-live="polite"></p>
             </div>
-            <p class="cert-hint">Edit with your passcode, then click <strong>Save</strong> — it publishes to GitHub so everyone can see your certificates on the live site. Use the local server: <code>http://localhost:4173/certificates.html</code></p>
+            <p class="cert-hint" id="cert-hint" hidden>You are editing. Click <strong>Save</strong> to publish so everyone can see your certificates. Local server: <code>http://localhost:4173/certificates.html</code></p>
 
             <div class="cert-board" id="cert-board" aria-label="Certificates display">
                 <p class="cert-empty" id="cert-empty">No certificates yet.</p>

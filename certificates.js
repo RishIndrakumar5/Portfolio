@@ -18,8 +18,11 @@
     const passcodeCancel = document.getElementById('passcode-cancel');
     const passcodeSubmit = document.getElementById('passcode-submit');
     const saveStatus = document.getElementById('save-status');
+    const certHint = document.getElementById('cert-hint');
 
-    let editing = sessionStorage.getItem(SESSION_KEY) === '1';
+    // Always start locked — password required every time to edit or add
+    let editing = false;
+    sessionStorage.removeItem(SESSION_KEY);
     let data = loadData();
     let dragState = null;
     let resizeState = null;
@@ -69,12 +72,27 @@
         return `cert-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     }
 
+    function requireEdit() {
+        if (editing) return true;
+        showModal(true);
+        setSaveStatus('Enter the passcode to edit or add certificates.', true);
+        return false;
+    }
+
     function setEditing(on) {
-        editing = on;
-        sessionStorage.setItem(SESSION_KEY, on ? '1' : '0');
+        editing = !!on;
+        if (on) {
+            sessionStorage.setItem(SESSION_KEY, '1');
+        } else {
+            sessionStorage.removeItem(SESSION_KEY);
+            dragState = null;
+            resizeState = null;
+        }
         unlockBtn.hidden = on;
         editActions.hidden = !on;
+        if (certHint) certHint.hidden = !on;
         board.classList.toggle('is-editing', on);
+        setSaveStatus(on ? 'Editing unlocked. Add or change certificates, then Save.' : '');
         render();
     }
 
@@ -226,6 +244,7 @@
     }
 
     function startDrag(e, item, card) {
+        if (!editing) return;
         e.preventDefault();
         const rect = board.getBoundingClientRect();
         dragState = {
@@ -241,6 +260,7 @@
     }
 
     function startResize(e, item, card) {
+        if (!editing) return;
         e.preventDefault();
         const rect = board.getBoundingClientRect();
         resizeState = {
@@ -259,6 +279,7 @@
     }
 
     function onPointerMove(e) {
+        if (!editing) return;
         if (dragState) {
             const rect = board.getBoundingClientRect();
             let x = ((e.clientX - rect.left - dragState.offsetX) / rect.width) * 100;
@@ -323,10 +344,12 @@
     }
 
     function pickImage(item) {
+        if (!requireEdit()) return;
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
         input.addEventListener('change', async () => {
+            if (!editing) return;
             const file = input.files && input.files[0];
             if (!file) return;
             try {
@@ -335,6 +358,7 @@
             } catch (_) {
                 const reader = new FileReader();
                 reader.onload = () => {
+                    if (!editing) return;
                     item.image = String(reader.result);
                     render();
                 };
@@ -345,6 +369,7 @@
     }
 
     function addCertificate() {
+        if (!requireEdit()) return;
         const count = data.items.length;
         data.items.push({
             id: uid(),
@@ -415,6 +440,7 @@
     }
 
     async function saveToPortfolio() {
+        if (!requireEdit()) return;
         saveBtn.disabled = true;
         setSaveStatus('Saving…');
         cacheLocally();
@@ -450,11 +476,17 @@
 
     unlockBtn.addEventListener('click', () => showModal(true));
     lockBtn.addEventListener('click', () => setEditing(false));
-    addBtn.addEventListener('click', addCertificate);
-    saveBtn.addEventListener('click', () => {
+    addBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        addCertificate();
+    });
+    saveBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         saveToPortfolio();
     });
-    downloadBtn.addEventListener('click', () => {
+    downloadBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!requireEdit()) return;
         cacheLocally();
         setSaveStatus(saveViaDownload());
     });
@@ -472,5 +504,6 @@
     window.addEventListener('pointerup', onPointerUp);
     window.addEventListener('pointercancel', onPointerUp);
 
-    setEditing(editing);
+    // Display-only until the correct passcode is entered
+    setEditing(false);
 })();
